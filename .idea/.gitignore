@@ -1,0 +1,19 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/compiler.xml
+/encodings.xml
+/GHG-Map-backend.iml
+/jarRepositories.xml
+/misc.xml
+/modules.xml
+/libraries/mysql_connector_j.xml
+/libraries/springframework_boot_spring.xml
+/libraries/springframework_boot_spring_autoconfigure.xml
+/libraries/springframework_boot_spring_starter.xml
+/libraries/springframework_boot_spring_starter_data_jpa.xml
+/libraries/springframework_boot_spring_starter_security.xml
+/libraries/springframework_boot_spring_starter_test.xml
+/libraries/springframework_boot_spring_starter_web.xml
+/uiDesigner.xml
+/vcs.xml
