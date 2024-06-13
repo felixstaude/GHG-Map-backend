@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="springframework.data.spring.commons" type="repository">
+    <properties maven-id="org.springframework.data:spring-data-commons:3.3.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/data/spring-data-commons/3.3.0/spring-data-commons-3.3.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-core/6.1.7/spring-core-6.1.7.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-jcl/6.1.7/spring-jcl-6.1.7.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-beans/6.1.7/spring-beans-6.1.7.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/2.0.2/slf4j-api-2.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
