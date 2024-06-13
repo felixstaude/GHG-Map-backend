@@ -7,6 +7,7 @@ public class PinData {
     private String lat;
     private String lng;
 
+    // Getter und Setter
     public int getPinId() {
         return pinId;
     }

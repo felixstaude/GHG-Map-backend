@@ -1,37 +1,34 @@
 package de.felixstaude.ghgmap.database;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.io.InputStream;
 import java.util.Properties;
-import java.util.TimeZone;
 
+@Configuration
 public class DatabaseConfig {
 
     @Bean
-    public DataSource dataSource(){
+    public DataSource dataSource() {
         Properties properties = new Properties();
-        String propertiesFileName = "config.properties";
+        String propertiesFileName = "application.properties";
 
-        try{
-            String jarPath = Paths.get(DatabaseConfig.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent().toString();
-            properties.load(new FileInputStream(jarPath + "/" + propertiesFileName));
-
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertiesFileName)) {
+            if (inputStream == null) {
+                throw new RuntimeException("Unable to find " + propertiesFileName);
+            }
+            properties.load(inputStream);
         } catch (Exception e) {
             throw new RuntimeException("Unable to load database credentials", e);
         }
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/ghgMap?serverTimezone=UTC");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/ghg_map?serverTimezone=UTC");
         dataSource.setUsername(properties.getProperty("db.username"));
         dataSource.setPassword(properties.getProperty("db.password"));
 
@@ -39,8 +36,7 @@ public class DatabaseConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
-
 }
