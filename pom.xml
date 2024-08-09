@@ -20,21 +20,6 @@
             <version>3.3.0</version>
         </dependency>
 
-        <!-- Spring Boot Starter Data JPA -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
-        <!-- MySQL Connector -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-            <version>8.0.30</version>
-        </dependency>
-
         <!-- Spring Boot Starter Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,7 +42,6 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
             <version>5.7.0</version>
-
         </dependency>
         <dependency>
             <groupId>junit</groupId>

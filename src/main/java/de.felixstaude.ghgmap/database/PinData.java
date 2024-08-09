@@ -6,6 +6,7 @@ public class PinData {
     private String description;
     private String lat;
     private String lng;
+    private String imageUrl;  // Bild-URL hinzufügen
 
     // Getter und Setter
     public int getPinId() {
@@ -46,5 +47,13 @@ public class PinData {
 
     public void setLng(String lng) {
         this.lng = lng;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

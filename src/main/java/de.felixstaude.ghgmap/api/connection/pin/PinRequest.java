@@ -1,28 +1,14 @@
 package de.felixstaude.ghgmap.api.connection.pin;
 
 public class PinRequest {
-    private String description;
-    private String userId;
     private String lat;
     private String lng;
-    private String image;
+    private String description;
+    private String image; // Base64-kodiertes Bild als String
+    private String userId;
+    private String town; // Neu hinzugefügt
 
     // Getter und Setter
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getLat() {
         return lat;
@@ -40,11 +26,35 @@ public class PinRequest {
         this.lng = lng;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getImage() {
         return image;
     }
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getTown() {
+        return town;
+    }
+
+    public void setTown(String town) {
+        this.town = town;
     }
 }
