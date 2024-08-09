@@ -1,110 +1,148 @@
-GHG Map Backend
-This project is a backend service for managing geographical pins on a map. The service allows you to add pins with
-associated images, retrieve pin data, and gather statistical information about the pins added over time. The backend is
-built using Spring Boot and is designed to handle various HTTP requests for these operations.
+
+# GHG Map Backend
+
+## Overview
+The GHG Map Backend is a Spring Boot application that provides APIs for managing and retrieving geolocation pins with associated data, including statistics about the pins created per day, month, and year. It allows users to upload images, associate them with geographic coordinates, and retrieve statistics about the pins.
 
 ## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
+- [Setup](#setup)
 - [Endpoints](#endpoints)
-  - [Pin Endpoints](#pin-endpoints)
-  - [Statistics Endpoints](#statistics-endpoints)
-- [Configuration](#configuration)
-- [Project Structure](#project-structure)
-- [Technologies Used](#technologies-used)
+  - [Pin Management](#pin-management)
+    - [Add Pin](#add-pin)
+    - [Get All Pins](#get-all-pins)
+    - [Get Pin Data](#get-pin-data)
+  - [Statistics](#statistics)
+    - [Get Today's Pin Count](#get-todays-pin-count)
+    - [Get Pin Count by Day](#get-pin-count-by-day)
+    - [Get Pin Count by Month](#get-pin-count-by-month)
+    - [Get Pin Count by Year](#get-pin-count-by-year)
+- [File Structure](#file-structure)
+- [Dependencies](#dependencies)
 
-## Getting Started
-### Prerequisites
-To run this project, ensure you have the following installed on your system:
-- Java 17 or higher
-- Maven
-### Installation
-1. Clone the repository to your local machine.
+## Setup
+To run the GHG Map Backend, you need to have Java 17 and Maven installed.
+
+### Steps:
+1. Clone the repository.
 2. Navigate to the project directory.
-```bash
-git clone https://github.com/felixstaude/ghg-map-backend.git
-cd ghg-map-backend
-```
-3. Build the project using Maven.
-```bash
-mvn clean install
-```
-## Project Structure
-The project is organized as follows:
-- **`de.felixstaude.ghgmap.api.connection.pin`**: Contains classes for managing pins, including adding pins and
-  retrieving pin data.
-- **`de.felixstaude.ghgmap.api.statistics`**: Contains classes for calculating and retrieving statistics about the pins
-  added, including daily, monthly, and yearly statistics.
-- **`de.felixstaude.ghgmap.config`**: Contains configuration classes, such as CORS settings.
-- **`de.felixstaude.ghgmap.file`**: Manages file operations, including saving images to the server.
-- **`de.felixstaude.ghgmap.database`**: Contains classes for handling the data structures related to pins.
-- **`de.felixstaude.ghgmap`**: Contains the main application class and configuration classes.
-## API Endpoints
-### Pin API
-- **`POST /api/pin/add`**
-  Adds a new pin with associated metadata and an image.
-  **Request Parameters:**
-- `json`: The pin metadata in JSON format.
-- `image`: The image file associated with the pin.
-  **Response:**
-- A JSON object containing the status, pin ID, latitude, longitude, description, and image URL.
-- **`GET /api/pin/get/all`**
-  Retrieves all pins as a JSON object where each key is the pin ID and the value contains latitude and longitude.
-  **Response:**
-- A JSON object with the format:
+3. Run `mvn clean install` to build the project.
+4. Start the application with `mvn spring-boot:run`.
+
+## Endpoints
+
+### Pin Management
+
+#### Add Pin
+- **Endpoint**: `/api/pin/add`
+- **Method**: `POST`
+- **Description**: Adds a new pin with an image.
+- **Request**: 
+  - `json`: JSON string containing `lat`, `lng`, `description`, `userId`.
+  - `image`: Multipart file containing the image to be associated with the pin.
+- **Response**:
+  - `status`: "success" or "error"
+  - `pinId`: ID of the created pin
+  - `lat`: Latitude of the pin
+  - `lng`: Longitude of the pin
+  - `description`: Description of the pin
+  - `imageUrl`: URL to access the uploaded image
+
+#### Get All Pins
+- **Endpoint**: `/api/pin/get/all`
+- **Method**: `GET`
+- **Description**: Retrieves all pins with their latitude and longitude.
+- **Response**: JSON object with pin IDs as keys and objects containing `lat` and `lng`.
+
+Example Response:
 ```json
 {
-"1": {"lat": 51.163361, "lng": 10.447683},
-"2": {"lat": 53.163361, "lng": 9.447683}
+    "1": {"lng": 6.910400390625001, "lat": 51.781435604431195},
+    "2": {"lng": 12.095947265625, "lat": 53.258641373488096},
+    "3": {"lng": 9.865722656250002, "lat": 50.63901028125873},
+    "4": {"lng": 10.272216796875002, "lat": 52.6097193915665}
 }
 ```
-- **`GET /api/pin/get/data`**
-  Retrieves detailed data for a specific pin.
-  **Request Parameters:**
-- `pinId`: The ID of the pin.
-  **Response:**
-- A JSON object containing the pin's ID, user ID, description, latitude, longitude, and image path.
-### Statistics API
-- **`GET /api/statistics/pins/today`**
-  Retrieves the number of pins added today.
-- **`GET /api/statistics/pins/day`**
-  Retrieves the number of pins added on a specific day.
-  **Request Parameters:**
-- `day`: The day (e.g., `09`).
-- `month`: The month (e.g., `08`).
-- `year`: The year (e.g., `2024`).
-- **`GET /api/statistics/pins/month`**
-  Retrieves the number of pins added in a specific month.
-  **Request Parameters:**
-- `month`: The month (e.g., `08`).
-- `year`: The year (e.g., `2024`).
-- **`GET /api/statistics/pins/year`**
-  Retrieves the number of pins added in a specific year.
-  **Request Parameters:**
-- `year`: The year (e.g., `2024`).
-## Configuration
-The application is configured to store images in the `data/images/` directory. The `spring.web.resources.static-locations`
-property in `application.properties` allows static access to these images.
-```properties
-spring.web.resources.static-locations=file:./data/images/
+
+#### Get Pin Data
+- **Endpoint**: `/api/pin/get/data`
+- **Method**: `GET`
+- **Description**: Retrieves detailed information about a specific pin.
+- **Request Parameters**: 
+  - `pinId`: ID of the pin
+- **Response**: JSON object containing `pinId`, `userId`, `description`, `lat`, `lng`, and `imagePath`.
+
+### Statistics
+
+#### Get Today's Pin Count
+- **Endpoint**: `/api/statistics/pins/today`
+- **Method**: `GET`
+- **Description**: Retrieves the number of pins created today.
+- **Response**: Integer representing the count.
+
+#### Get Pin Count by Day
+- **Endpoint**: `/api/statistics/pins/day`
+- **Method**: `GET`
+- **Description**: Retrieves the number of pins created on a specific day.
+- **Request Parameters**:
+  - `day`: Day (DD)
+  - `month`: Month (MM)
+  - `year`: Year (YYYY)
+- **Response**: Integer representing the count.
+
+#### Get Pin Count by Month
+- **Endpoint**: `/api/statistics/pins/month`
+- **Method**: `GET`
+- **Description**: Retrieves the number of pins created in a specific month.
+- **Request Parameters**:
+  - `month`: Month (MM)
+  - `year`: Year (YYYY)
+- **Response**: Integer representing the count.
+
+#### Get Pin Count by Year
+- **Endpoint**: `/api/statistics/pins/year`
+- **Method**: `GET`
+- **Description**: Retrieves the number of pins created in a specific year.
+- **Request Parameters**:
+  - `year`: Year (YYYY)
+- **Response**: Integer representing the count.
+
+## File Structure
+
 ```
-## Building and Running
-To build and run the project:
-1. Build the project with Maven.
-```bash
-mvn clean install
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── de
+│   │   │       └── felixstaude
+│   │   │           └── ghgmap
+│   │   │               ├── api
+│   │   │               │   ├── connection
+│   │   │               │   │   └── pin
+│   │   │               │   │       ├── PinController.java
+│   │   │               │   │       └── PinRequest.java
+│   │   │               │   └── statistics
+│   │   │               │       ├── PinsPerDay.java
+│   │   │               │       ├── PinsPerMonth.java
+│   │   │               │       ├── PinsPerYear.java
+│   │   │               │       └── StatisticsController.java
+│   │   │               ├── config
+│   │   │               │   └── CorsConfig.java
+│   │   │               ├── database
+│   │   │               │   └── PinData.java
+│   │   │               ├── file
+│   │   │               │   └── ImageProcessor.java
+│   │   │               └── Main.java
+│   │   └── resources
+│   │       └── application.properties
+├── data
+│   ├── images
+│   └── pins.csv
+└── pom.xml
 ```
-2. Run the application.
-```bash
-mvn spring-boot:run
-```
-The application will start on `http://localhost:8080`.
+
 ## Dependencies
-The project uses the following dependencies:
-- **Spring Boot Starter Web**: Provides the necessary libraries to build a web application.
-- **Spring Boot Starter Test**: For testing the application.
-- **JUnit Jupiter Engine**: For unit testing.
-- **Mockito Core**: For mocking dependencies in tests.
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+- Spring Boot 3.3.0
+- JUnit 5.10.2
+- Mockito 5.7.0
+
+Ensure that the `spring.web.resources.static-locations` in your `application.properties` file is set correctly to serve images from the `data/images/` directory.
