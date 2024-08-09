@@ -1,4 +1,4 @@
-package de.felixstaude.ghgmap.test;
+package de.felixstaude.ghgmap.nominatim;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

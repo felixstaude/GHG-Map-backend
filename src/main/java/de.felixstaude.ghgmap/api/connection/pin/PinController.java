@@ -1,7 +1,7 @@
 package de.felixstaude.ghgmap.api.connection.pin;
 
 import de.felixstaude.ghgmap.file.ImageProcessor;
-import de.felixstaude.ghgmap.test.NominatimClient;
+import de.felixstaude.ghgmap.nominatim.NominatimClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
