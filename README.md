@@ -2,7 +2,7 @@
 # GHG Map Backend
 
 ## Overview
-The GHG Map Backend is a Spring Boot application that provides APIs for managing and retrieving geolocation pins with associated data, including statistics about the pins created per day, month, and year. It allows users to upload images, associate them with geographic coordinates, and retrieve statistics about the pins.
+The GHG Map Backend is a Spring Boot application that provides APIs for managing and retrieving geolocation pins with associated data, including statistics about the pins created per day, month, and year. It allows users to upload images, associate them with geographic coordinates, and retrieve statistics about the pins. Additionally, it now includes functionality to retrieve pins associated with specific users and save town information based on the pin's location.
 
 ## Table of Contents
 - [Setup](#setup)
@@ -11,6 +11,7 @@ The GHG Map Backend is a Spring Boot application that provides APIs for managing
     - [Add Pin](#add-pin)
     - [Get All Pins](#get-all-pins)
     - [Get Pin Data](#get-pin-data)
+    - [Get Pins by User ID](#get-pins-by-user-id)
   - [Statistics](#statistics)
     - [Get Today's Pin Count](#get-todays-pin-count)
     - [Get Pin Count by Day](#get-pin-count-by-day)
@@ -35,17 +36,17 @@ To run the GHG Map Backend, you need to have Java 17 and Maven installed.
 #### Add Pin
 - **Endpoint**: `/api/pin/add`
 - **Method**: `POST`
-- **Description**: Adds a new pin with an image.
+- **Description**: Adds a new pin with an image. The town of the pin's location is also determined and stored.
 - **Request**: 
   - `json`: JSON string containing `lat`, `lng`, `description`, `userId`.
   - `image`: Multipart file containing the image to be associated with the pin.
 - **Response**:
-  - `status`: "success" or "error"
-  - `pinId`: ID of the created pin
-  - `lat`: Latitude of the pin
-  - `lng`: Longitude of the pin
-  - `description`: Description of the pin
-  - `imageUrl`: URL to access the uploaded image
+  - `ok`: `true` if the pin was successfully added.
+  - `pinId`: ID of the created pin.
+  - `lat`: Latitude of the pin.
+  - `lng`: Longitude of the pin.
+  - `description`: Description of the pin.
+  - `imageUrl`: URL to access the uploaded image.
 
 #### Get All Pins
 - **Endpoint**: `/api/pin/get/all`
@@ -68,8 +69,18 @@ Example Response:
 - **Method**: `GET`
 - **Description**: Retrieves detailed information about a specific pin.
 - **Request Parameters**: 
-  - `pinId`: ID of the pin
-- **Response**: JSON object containing `pinId`, `userId`, `description`, `lat`, `lng`, and `imagePath`.
+  - `pinId`: ID of the pin.
+- **Response**: JSON object containing `pinId`, `userId`, `description`, `lat`, `lng`, `town`, and `imagePath`.
+
+#### Get Pins by User ID
+- **Endpoint**: `/api/pin/get/user`
+- **Method**: `GET`
+- **Description**: Retrieves all pins created by a specific user.
+- **Request Parameters**: 
+  - `userId`: The ID of the user whose pins are to be retrieved.
+- **Response**:
+  - `ok`: `true` if the user has created pins, `false` otherwise.
+  - `pins`: A list of pins created by the user, each containing `pinId`, `lat`, `lng`, `description`, and `imagePath`.
 
 ### Statistics
 
@@ -84,9 +95,9 @@ Example Response:
 - **Method**: `GET`
 - **Description**: Retrieves the number of pins created on a specific day.
 - **Request Parameters**:
-  - `day`: Day (DD)
-  - `month`: Month (MM)
-  - `year`: Year (YYYY)
+  - `day`: Day (DD).
+  - `month`: Month (MM).
+  - `year`: Year (YYYY).
 - **Response**: Integer representing the count.
 
 #### Get Pin Count by Month
@@ -94,8 +105,8 @@ Example Response:
 - **Method**: `GET`
 - **Description**: Retrieves the number of pins created in a specific month.
 - **Request Parameters**:
-  - `month`: Month (MM)
-  - `year`: Year (YYYY)
+  - `month`: Month (MM).
+  - `year`: Year (YYYY).
 - **Response**: Integer representing the count.
 
 #### Get Pin Count by Year
@@ -103,7 +114,7 @@ Example Response:
 - **Method**: `GET`
 - **Description**: Retrieves the number of pins created in a specific year.
 - **Request Parameters**:
-  - `year`: Year (YYYY)
+  - `year`: Year (YYYY).
 - **Response**: Integer representing the count.
 
 ## File Structure
@@ -124,6 +135,7 @@ Example Response:
 │   │   │               │       ├── PinsPerDay.java
 │   │   │               │       ├── PinsPerMonth.java
 │   │   │               │       ├── PinsPerYear.java
+│   │   │               │       ├── User.java
 │   │   │               │       └── StatisticsController.java
 │   │   │               ├── config
 │   │   │               │   └── CorsConfig.java
@@ -131,6 +143,8 @@ Example Response:
 │   │   │               │   └── PinData.java
 │   │   │               ├── file
 │   │   │               │   └── ImageProcessor.java
+│   │   │               ├── nominatim
+│   │   │               │   └── NominatimClient.java
 │   │   │               └── Main.java
 │   │   └── resources
 │   │       └── application.properties
