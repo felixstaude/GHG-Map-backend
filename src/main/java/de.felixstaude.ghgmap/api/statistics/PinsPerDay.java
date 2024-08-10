@@ -7,8 +7,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class PinsPerDay {
- // TODO nur die pins zählen die approved wurden
     public static Integer getPinsToday() {
+        // TODO pins nur zählen lassen wenn approved
         String today = ZonedDateTime.now().getYear() + ";" +
                 String.format("%02d", ZonedDateTime.now().getMonthValue()) + ";" +
                 String.format("%02d", ZonedDateTime.now().getDayOfMonth());
@@ -21,6 +21,7 @@ public class PinsPerDay {
     }
 
     public static Integer getPinsForSpecificDay(String year, String month, String day) {
+        // TODO pins nur zählen lassen wenn approved
         String targetDate = year + ";" + month + ";" + day;
 
         File statsFile = new File("data/stats.csv");

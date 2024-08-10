@@ -8,6 +8,7 @@ import java.util.List;
 public class PinsPerMonth {
 
     public static Integer getPinsForSpecificMonth(String year, String month) {
+        // TODO pins nur zählen lassen wenn approved
         String targetDate = year + ";" + month;
 
         File statsFile = new File("data/stats.csv");

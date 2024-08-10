@@ -8,6 +8,7 @@ import java.util.List;
 public class PinsPerYear {
 
     public static Integer getPinsForSpecificYear(String year) {
+        // TODO pins nur zählen lassen wenn approved
         File statsFile = new File("data/stats.csv");
         if (!statsFile.exists()) {
             return 0;
