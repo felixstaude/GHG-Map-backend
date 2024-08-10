@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class PinsPerDay {
-
+ // TODO nur die pins zählen die approved wurden
     public static Integer getPinsToday() {
         String today = ZonedDateTime.now().getYear() + ";" +
                 String.format("%02d", ZonedDateTime.now().getMonthValue()) + ";" +

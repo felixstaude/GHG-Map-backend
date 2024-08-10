@@ -63,11 +63,11 @@ public class PinController {
 
             imageProcessor.saveImage(image.getBytes(), imageFile.getAbsolutePath());
 
-            // Speichere die Pin-Daten mit der übergebenen town Information
+            String creationDate = ZonedDateTime.now().toString(); // Erstellungsdatum setzen
+
             try (FileWriter writer = new FileWriter("data/pins.csv", true)) {
                 String town = pinRequest.getTown();
                 if (town == null || town.isEmpty()) {
-                    // Falls town nicht übergeben wurde, verwende Nominatim zur Bestimmung der town
                     town = NominatimClient.getTownFromCoordinates(
                             Double.parseDouble(pinRequest.getLat()),
                             Double.parseDouble(pinRequest.getLng()));
@@ -86,6 +86,10 @@ public class PinController {
                         .append(town)
                         .append(';')
                         .append(relativeFilePath.replace("data/images/", ""))
+                        .append(';')
+                        .append("false") // Pin initially not approved
+                        .append(';')
+                        .append(creationDate) // Erstellungsdatum speichern
                         .append('\n');
             }
 
@@ -105,7 +109,7 @@ public class PinController {
         response.put("lat", pinRequest.getLat());
         response.put("lng", pinRequest.getLng());
         response.put("description", pinRequest.getDescription());
-        response.put("town", pinRequest.getTown()); // Füge die town zur Antwort hinzu
+        response.put("town", pinRequest.getTown());
         response.put("imageUrl", imageUrl);
         return response;
     }
@@ -147,18 +151,18 @@ public class PinController {
         }
     }
 
-
     @GetMapping("/get/all")
     public Map<String, Map<String, Object>> getAllPins() {
         Map<String, Map<String, Object>> pins = new HashMap<>();
         try (Scanner scanner = new Scanner(new File("data/pins.csv"))) {
             while (scanner.hasNextLine()) {
                 String[] values = scanner.nextLine().split(";");
-                Map<String, Object> pinData = new HashMap<>();
-
-                pinData.put("lat", Double.parseDouble(values[3]));
-                pinData.put("lng", Double.parseDouble(values[4]));
-                pins.put(values[0], pinData);
+                if ("true".equals(values[7])) { // Check if the pin is approved
+                    Map<String, Object> pinData = new HashMap<>();
+                    pinData.put("lat", Double.parseDouble(values[3]));
+                    pinData.put("lng", Double.parseDouble(values[4]));
+                    pins.put(values[0], pinData);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to read pins", e);
@@ -173,13 +177,13 @@ public class PinController {
             while (scanner.hasNextLine()) {
                 String[] values = scanner.nextLine().split(";");
                 int id = Integer.parseInt(values[0]);
-                if (id == pinId) {
+                if (id == pinId && "true".equals(values[7])) { // Check if the pin is approved
                     pinData.put("pinId", id);
                     pinData.put("userId", values[1]);
                     pinData.put("description", values[2]);
                     pinData.put("lat", values[3]);
                     pinData.put("lng", values[4]);
-                    pinData.put("town", values[5]); // Füge town zur Antwort hinzu
+                    pinData.put("town", values[5]);
                     pinData.put("imagePath", values[6]);
                     break;
                 }
@@ -188,6 +192,156 @@ public class PinController {
             throw new RuntimeException("Failed to read pin data", e);
         }
         return pinData;
+    }
+
+    @GetMapping("/admin/all")
+    public List<Map<String, Object>> getAllPinsAdmin() {
+        List<Map<String, Object>> pins = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File("data/pins.csv"))) {
+            while (scanner.hasNextLine()) {
+                String[] values = scanner.nextLine().split(";");
+                Map<String, Object> pinData = new HashMap<>();
+                pinData.put("userId", values[1]);
+                pinData.put("lat", Double.parseDouble(values[3]));
+                pinData.put("lng", Double.parseDouble(values[4]));
+                pinData.put("town", values[5]);
+                pins.add(pinData);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read pins", e);
+        }
+        return pins;
+    }
+
+    @GetMapping("/admin/get")
+    public Map<String, Object> getPinDataAdmin(@RequestParam("pinId") int pinId) {
+        Map<String, Object> pinData = new HashMap<>();
+        try (Scanner scanner = new Scanner(new File("data/pins.csv"))) {
+            while (scanner.hasNextLine()) {
+                String[] values = scanner.nextLine().split(";");
+                int id = Integer.parseInt(values[0]);
+                if (id == pinId) {
+                    pinData.put("pinId", id);
+                    pinData.put("userId", values[1]);
+                    pinData.put("description", values[2]);
+                    pinData.put("lat", values[3]);
+                    pinData.put("lng", values[4]);
+                    pinData.put("town", values[5]);
+                    pinData.put("imagePath", values[6]);
+                    pinData.put("approved", values[7]);
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read pin data", e);
+        }
+        return pinData;
+    }
+
+    @PostMapping("/admin/approve")
+    public Map<String, Object> approvePin(@RequestParam("pinId") int pinId) {
+        boolean found = false;
+        File pinsFile = new File("data/pins.csv");
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(pinsFile.toPath());
+            for (int i = 0; i < lines.size(); i++) {
+                String[] values = lines.get(i).split(";");
+                int id = Integer.parseInt(values[0]);
+                if (id == pinId) {
+                    values[7] = "true"; // Approve the pin
+                    lines.set(i, String.join(";", values));
+                    found = true;
+                    break;
+                }
+            }
+            Files.write(pinsFile.toPath(), lines, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update pin approval status", e);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("ok", found);
+        return response;
+    }
+
+    @DeleteMapping("/admin/delete")
+    public Map<String, Object> deletePin(@RequestParam("pinId") int pinId) {
+        File pinsFile = new File("data/pins.csv");
+        List<String> updatedLines = new ArrayList<>();
+        boolean pinFound = false;
+        String[] deletedPinData = null;
+
+        try (Scanner scanner = new Scanner(pinsFile)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] values = line.split(";");
+                int id = Integer.parseInt(values[0]);
+
+                if (id == pinId) {
+                    pinFound = true;
+                    deletedPinData = values;
+                } else {
+                    updatedLines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read pins data", e);
+        }
+
+        if (pinFound) {
+            try {
+                Files.write(pinsFile.toPath(), updatedLines, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+                if (deletedPinData != null) {
+                    updateStatisticsOnDelete(deletedPinData);
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to update pins data", e);
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("ok", pinFound);
+        if (pinFound) {
+            response.put("message", "Pin deleted successfully.");
+        } else {
+            response.put("message", "Pin not found.");
+        }
+
+        return response;
+    }
+
+    private void updateStatisticsOnDelete(String[] pinData) {
+        String creationDate = pinData[8];  // Erstellungsdatum ist das 9. Feld in der CSV
+        String[] dateParts = creationDate.split("T")[0].split("-"); // Nur das Datum extrahieren
+        String targetDate = dateParts[0] + ";" + dateParts[1] + ";" + dateParts[2];
+
+        File statsFile = new File("data/stats.csv");
+
+        try {
+            List<String> lines = Files.readAllLines(statsFile.toPath());
+            List<String> updatedLines = new ArrayList<>();
+
+            for (String line : lines) {
+                String[] parts = line.split(";");
+                String statDate = parts[0] + ";" + parts[1] + ";" + parts[2];
+                if (statDate.equals(targetDate)) {
+                    int count = Integer.parseInt(parts[3]) - 1;
+                    if (count > 0) {
+                        updatedLines.add(statDate + ";" + count);
+                    }
+                } else {
+                    updatedLines.add(line);
+                }
+            }
+
+            Files.write(statsFile.toPath(), updatedLines, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update statistics", e);
+        }
     }
 
     private int getNextPinId() {

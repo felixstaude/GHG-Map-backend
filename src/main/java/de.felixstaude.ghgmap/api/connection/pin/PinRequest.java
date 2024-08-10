@@ -7,6 +7,7 @@ public class PinRequest {
     private String image; // Base64-kodiertes Bild als String
     private String userId;
     private String town; // Neu hinzugefügt
+    private boolean approved;
 
     // Getter und Setter
 
@@ -56,5 +57,13 @@ public class PinRequest {
 
     public void setTown(String town) {
         this.town = town;
+    }
+
+    public Boolean getApproved(){
+        return approved;
+    }
+
+    public void setApproved(Boolean approved){
+        this.approved = approved;
     }
 }
