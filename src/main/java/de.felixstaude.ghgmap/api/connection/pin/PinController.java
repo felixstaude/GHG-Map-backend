@@ -212,6 +212,7 @@ public class PinController {
         Map<String, Object> response = new HashMap<>();
         response.put("ok", true);
         response.put("pins", pins);
+        System.out.println(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
